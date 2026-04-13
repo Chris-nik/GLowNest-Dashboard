@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GlowNest | Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body { background-color: #0b1120; color: white; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+        .sidebar { background: #111827; border-right: 1px solid #1f2937; width: 260px; height: 100vh; position: fixed; z-index: 50; }
+        
+        .input-box { 
+            background: #0f172a; 
+            border: 1px solid #1e293b; 
+            padding: 12px; 
+            border-radius: 10px; 
+            width: 100%; 
+            color: white; 
+            margin-bottom: 15px; 
+            outline: none; 
+            transition: 0.3s; 
+        }
+
+        .custom-select-container { position: relative; width: 100%; margin-bottom: 15px; }
+        .select-selected {
+            background: #0f172a; border: 1px solid #1e293b; padding: 12px;
+            border-radius: 10px; cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+        }
+        .select-items {
+            position: absolute; background: #111827; border: 1px solid #1e293b;
+            width: 100%; z-index: 99; border-radius: 10px; margin-top: 5px;
+            max-height: 350px; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+        .search-box-container {
+            position: sticky; top: 0; background: #111827; padding: 10px; border-bottom: 1px solid #1e293b;
+        }
+        .select-items div {
+            padding: 12px; cursor: pointer; border-bottom: 1px solid #1e293b;
+            font-size: 0.85rem; line-height: 1.4; transition: 0.2s;
+        }
+        .select-items div:hover { background: #1e293b; color: #3b82f6; }
+        .select-hide { display: none; }
+        .rotate { transform: rotate(180deg); }
+
+        .input-box:focus { border-color: #3b82f6; box-shadow: 0 0 10px rgba(59, 130, 246, 0.2); }
+        .accent { color: #3b82f6; }
+        .hidden { display: none; }
+        .cat-btn { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .cat-btn:hover { transform: translateY(-3px); filter: brightness(1.2); }
+        .cat-btn:active { transform: scale(0.95); }
+
+        #serviceNote {
+            background: rgba(59, 130, 246, 0.1); border: 1px dashed rgba(59, 130, 246, 0.4);
+            color: #93c5fd; padding: 12px; border-radius: 8px; font-size: 0.8rem; margin-bottom: 15px; display: none;
+        }
+
+        /* Loading Skeleton */
+        .skeleton { background: linear-gradient(90deg, #1f2937 25%, #374151 50%, #1f2937 75%); background-size: 200% 100%; animation: loading 1.5s infinite; }
+        @keyframes loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+    </style>
+</head>
+<body class="flex">
+
+    <div class="sidebar p-6 flex flex-col">
+        <h1 class="text-2xl font-bold accent mb-10 text-center uppercase tracking-tighter italic">GlowNest</h1>
+        <nav class="flex-1 space-y-1 overflow-y-auto">
+            <button onclick="showSection('new-order')" class="w-full text-left p-3 rounded-lg hover:bg-gray-800 transition flex items-center">
+                <i class="fa fa-cart-plus mr-3 accent w-5"></i> New Order
+            </button>
+            <button onclick="showSection('history')" class="w-full text-left p-3 rounded-lg hover:bg-gray-800 transition flex items-center">
+                <i class="fa fa-history mr-3 accent w-5"></i> အော်ဒါမှတ်တမ်း
+            </button>
+            <a href="https://t.me/NZDigitalSupportMyanmar" target="_blank" class="flex items-center p-3 rounded-lg text-green-400 hover:bg-gray-800 transition">
+                <i class="fa fa-wallet mr-3 w-5"></i> Add Fund (Telegram)
+            </a>
+            
+            <div id="referral-nav" class="hidden border-t border-gray-800 mt-4 pt-4">
+                <p class="text-[10px] text-gray-500 uppercase font-bold mb-2">Referral Program</p>
+                <div class="bg-blue-900/20 p-3 rounded-lg border border-blue-500/30 text-center">
+                    <p class="text-[10px] text-blue-300 mb-2 font-bold">သူငယ်ချင်းဖိတ်လျှင် ၅၀ ကျပ်ရမည်</p>
+                    <input type="text" id="refLinkInput" readonly class="w-full bg-black/40 text-[10px] p-2 rounded border border-gray-700 mb-2 focus:outline-none text-center">
+                    <button id="copyBtn" onclick="copyRefLink()" class="w-full bg-blue-600 text-[10px] py-2 rounded font-bold hover:bg-blue-500 transition">COPY LINK</button>
+                    <div class="mt-3 pt-2 border-t border-blue-500/20 flex justify-between items-center">
+                        <span class="text-[10px] text-gray-400">ရငွေ: <b id="refBalText" class="text-green-400">0</b></span>
+                        <button id="claimBtn" onclick="claimRef()" class="hidden bg-green-600 text-[9px] px-2 py-1 rounded font-bold">CLAIM</button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <div id="auth-buttons" class="border-t border-gray-800 pt-5 space-y-2">
+            <button onclick="handleAuth('signin')" class="w-full p-2 border border-gray-700 rounded text-sm hover:bg-gray-800">Sign In</button>
+            <button onclick="handleAuth('signup')" class="w-full p-2 bg-white text-black rounded font-bold text-sm hover:opacity-90">Sign Up</button>
+        </div>
+
+        <div id="user-profile" class="hidden border-t border-gray-800 pt-5">
+            <div class="bg-blue-600/10 p-4 rounded-xl border border-blue-500/20">
+                <p class="text-[10px] text-gray-400 uppercase font-bold">Account</p>
+                <p id="displayEmail" class="text-sm font-bold truncate text-white"></p>
+                <button onclick="logout()" class="text-red-500 text-xs font-bold mt-2 hover:underline">LOGOUT</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="ml-[260px] p-10 w-full min-h-screen bg-[#0b1120]">
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+            <div class="bg-[#111827] p-6 rounded-2xl border border-gray-800 shadow-xl">
+                <p class="text-gray-500 text-xs font-bold uppercase tracking-widest mb-1">လက်ကျန်ငွေ</p>
+                <div id="uBal" class="text-2xl font-bold accent">0 MMK</div>
+            </div>
+            <div class="bg-[#111827] p-6 rounded-2xl border border-gray-800 shadow-xl">
+                <p class="text-gray-500 text-xs font-bold uppercase tracking-widest mb-1">သင့်အသုံးစရိတ်</p>
+                <div id="uSpent" class="text-2xl font-bold">0 MMK</div>
+            </div>
+            <div class="bg-[#111827] p-6 rounded-2xl border border-gray-800 shadow-xl">
+                <p class="text-gray-500 text-xs font-bold uppercase tracking-widest mb-1">သင့်အော်ဒါများ</p>
+                <div id="uOrders" class="text-2xl font-bold text-green-500">0</div>
+            </div>
+        </div>
+
+        <div id="orderSection" class="max-w-3xl mx-auto md:mx-0">
+            <h2 class="text-2xl font-bold mb-6">အော်ဒါအသစ်တင်ရန် (New Order)</h2>
+            
+            <div class="flex flex-wrap gap-4 mb-8 bg-[#111827] p-5 rounded-2xl border border-gray-800 justify-center">
+                <button title="Telegram" onclick="filterCat('Telegram')" class="cat-btn w-12 h-12 rounded-xl bg-[#24A1DE] flex items-center justify-center text-xl shadow-lg"><i class="fab fa-telegram-plane"></i></button>
+                <button title="TikTok" onclick="filterCat('TikTok')" class="cat-btn w-12 h-12 rounded-xl bg-black border border-gray-700 flex items-center justify-center text-xl shadow-lg"><i class="fab fa-tiktok"></i></button>
+                <button title="Facebook" onclick="filterCat('Facebook')" class="cat-btn w-12 h-12 rounded-xl bg-[#1877F2] flex items-center justify-center text-xl shadow-lg"><i class="fab fa-facebook-f"></i></button>
+                <button title="Instagram" onclick="filterCat('Instagram')" class="cat-btn w-12 h-12 rounded-xl bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] flex items-center justify-center text-xl shadow-lg"><i class="fab fa-instagram"></i></button>
+                <button title="YouTube" onclick="filterCat('YouTube')" class="cat-btn w-12 h-12 rounded-xl bg-[#FF0000] flex items-center justify-center text-xl shadow-lg"><i class="fab fa-youtube"></i></button>
+            </div>
+
+            <div class="bg-[#111827] p-8 rounded-3xl border border-gray-800 shadow-2xl">
+                <label class="text-xs text-gray-500 font-bold mb-1 block">Category</label>
+                <select id="catSelect" class="input-box" onchange="loadServices()" style="appearance: auto;"></select>
+
+                <label class="text-xs text-gray-500 font-bold mb-1 block">Services (စျေးနှုန်းကြည့်ရန် ဝန်ဆောင်မှုရွေးပါ)</label>
+                <div class="custom-select-container">
+                    <div id="customSelectTrigger" class="select-selected" onclick="toggleDropdown()">
+                        <span id="selectedText">Select a service</span>
+                        <i class="fa fa-chevron-down text-xs transition-transform duration-300" id="arrowIcon"></i>
+                    </div>
+                    <div id="customOptions" class="select-items select-hide">
+                        <div class="search-box-container">
+                            <input type="text" id="serviceSearch" class="input-box mb-0 py-2 text-sm" placeholder="Search service..." onkeyup="filterServices(this.value)">
+                        </div>
+                        <div id="optionsList"></div>
+                    </div>
+                    <input type="hidden" id="servSelect" value="" onchange="calc()">
+                </div>
+
+                <div id="serviceNote"></div>
+
+                <label class="text-xs text-gray-500 font-bold mb-1 block">Link / Username</label>
+                <input type="text" id="link" placeholder="Enter link here" class="input-box">
+
+                <div id="qtyBox">
+                    <label class="text-xs text-gray-500 font-bold mb-1 block">Quantity</label>
+                    <input type="number" id="qty" placeholder="1000" class="input-box" oninput="calc()">
+                </div>
+
+                <div id="commentBox" class="hidden">
+                    <label class="text-xs text-gray-500 font-bold mb-1 block">Comments (1 per line)</label>
+                    <textarea id="customComments" rows="5" class="input-box" placeholder="Write each comment on a new line..." oninput="calc()"></textarea>
+                </div>
+
+                <div class="p-5 bg-black/40 rounded-2xl mb-8 flex justify-between items-center border border-gray-800">
+                    <span class="text-gray-400 font-bold uppercase text-xs">Total Charge</span>
+                    <span id="total" class="text-2xl font-bold text-green-400">0 MMK</span>
+                </div>
+
+                <button id="orderBtn" onclick="placeOrder()" class="w-full bg-blue-600 p-4 rounded-xl font-bold text-lg hover:bg-blue-500 transition shadow-lg uppercase">Place Order Now</button>
+            </div>
+        </div>
+
+        <div id="historySection" class="hidden">
+            <h2 class="text-2xl font-bold mb-6">Order History</h2>
+            <div class="bg-[#111827] border border-gray-800 rounded-2xl overflow-hidden shadow-2xl overflow-x-auto">
+                <table class="w-full text-left text-sm min-w-[600px]">
+                    <thead class="bg-gray-800/50 text-gray-400 text-[10px] tracking-widest uppercase">
+                        <tr><th class="p-5">Order ID</th><th class="p-5">Service</th><th class="p-5">Charge</th><th class="p-5">Status</th></tr>
+                    </thead>
+                    <tbody id="historyTable"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const refCode = urlParams.get('ref');
+        if (refCode) localStorage.setItem('referral_by', refCode);
+
+        let allServices = [];
+        let filteredServicesList = [];
+        let selectedServiceData = null;
+        let currentUser = JSON.parse(localStorage.getItem('user'));
+        const API_BASE = "https://glownest-api-9puo.onrender.com"; 
+
+        window.onload = () => {
+            fetchServices();
+            refreshDashboard();
+            setInterval(() => { if (currentUser) refreshDashboard(); }, 60000); 
+            
+            window.onclick = (e) => {
+                if (!e.target.closest('.custom-select-container')) {
+                    document.getElementById('customOptions').classList.add('select-hide');
+                    document.getElementById('arrowIcon').classList.remove('rotate');
+                }
+            };
+        };
+
+        async function refreshDashboard() {
+            if (!currentUser) return;
+            try {
+                const res = await fetch(`${API_BASE}/api/user/${currentUser.email}`);
+                const data = await res.json();
+                if (data.success) {
+                    document.getElementById('uBal').innerText = (data.balance || 0).toLocaleString() + " MMK";
+                    document.getElementById('uSpent').innerText = (data.spent || 0).toLocaleString() + " MMK";
+                    document.getElementById('auth-buttons').classList.add('hidden');
+                    document.getElementById('user-profile').classList.remove('hidden');
+                    document.getElementById('displayEmail').innerText = currentUser.email;
+                    
+                    document.getElementById('referral-nav').classList.remove('hidden');
+                    const refLink = `https://glownest-smm.netlify.app/index.html?ref=${data.referralCode}`;
+                    document.getElementById('refLinkInput').value = refLink;
+                    document.getElementById('refBalText').innerText = (data.referralBalance || 0).toLocaleString() + " MMK";
+                    
+                    document.getElementById('claimBtn').classList.toggle('hidden', data.referralBalance < 1000);
+                    loadHistory(); 
+                }
+            } catch (err) { console.error("Error refreshing dashboard"); }
+        }
+
+        function copyRefLink() {
+            const input = document.getElementById('refLinkInput');
+            const btn = document.getElementById('copyBtn');
+            input.select();
+            document.execCommand('copy');
+            const originalText = btn.innerText;
+            btn.innerText = "COPIED!";
+            btn.classList.replace('bg-blue-600', 'bg-green-600');
+            setTimeout(() => {
+                btn.innerText = originalText;
+                btn.classList.replace('bg-green-600', 'bg-blue-600');
+            }, 2000);
+        }
+
+        async function claimRef() {
+            if (!confirm("Referral ရငွေများကို Main Balance ထဲသို့ ထည့်သွင်းမလား?")) return;
+            try {
+                const res = await fetch(`${API_BASE}/api/referral/claim`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ email: currentUser.email })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert("အောင်မြင်စွာ ထည့်သွင်းပြီးပါပြီ။");
+                    refreshDashboard();
+                } else alert(data.error);
+            } catch (err) { alert("Error connecting to server"); }
+        }
+
+        async function fetchServices() {
+            const container = document.getElementById('optionsList');
+            container.innerHTML = '<div class="p-5 text-center text-gray-500">Loading services...</div>';
+            try {
+                const response = await fetch(`${API_BASE}/api/services?t=${Date.now()}`);
+                const data = await response.json();
+                if (data.length > 0) {
+                    allServices = data;
+                    const cats = [...new Set(data.map(s => s.category))];
+                    document.getElementById('catSelect').innerHTML = cats.map(c => `<option value="${c}">${c}</option>`).join('');
+                    loadServices();
+                }
+            } catch (err) { container.innerHTML = '<div class="p-5 text-center text-red-500">Failed to load services.</div>'; }
+        }
+
+        function loadServices() {
+            const cat = document.getElementById('catSelect').value;
+            filteredServicesList = allServices.filter(s => s.category === cat);
+            const isCommentCat = cat.toLowerCase().includes("comment");
+            
+            document.getElementById('commentBox').classList.toggle('hidden', !isCommentCat);
+            document.getElementById('qtyBox').classList.toggle('hidden', isCommentCat);
+            document.getElementById('serviceSearch').value = ""; 
+            
+            renderOptions(filteredServicesList);
+            document.getElementById('selectedText').innerText = "Select a service";
+            document.getElementById('servSelect').value = "";
+            document.getElementById('serviceNote').style.display = "none";
+            selectedServiceData = null;
+            calc();
+        }
+
+        function renderOptions(list) {
+            const container = document.getElementById('optionsList');
+            if(list.length === 0) {
+                container.innerHTML = '<div class="p-5 text-center text-gray-600 italic">No services found.</div>';
+                return;
+            }
+            container.innerHTML = list.map(s => {
+                const price = parseFloat(s.price);
+                return `<div onclick="selectService('${s.serviceId}', '${s.name.replace(/'/g, "\\'")}', ${price})">
+                    <span class="block font-bold mb-1">${s.name}</span>
+                    <span class="text-blue-400 font-mono text-[11px] uppercase">[ ${price.toLocaleString()} MMK per 1000 ]</span>
+                </div>`;
+            }).join('');
+        }
+
+        function filterServices(val) {
+            const filtered = filteredServicesList.filter(s => s.name.toLowerCase().includes(val.toLowerCase()));
+            renderOptions(filtered);
+        }
+
+        function toggleDropdown() {
+            document.getElementById('customOptions').classList.toggle('select-hide');
+            document.getElementById('arrowIcon').classList.toggle('rotate');
+            if (!document.getElementById('customOptions').classList.contains('select-hide')) {
+                document.getElementById('serviceSearch').focus();
+            }
+        }
+
+        function selectService(id, name, price) {
+            document.getElementById('selectedText').innerText = name;
+            document.getElementById('servSelect').value = price;
+            selectedServiceData = { id, name, price };
+            const note = document.getElementById('serviceNote');
+            note.innerHTML = `<i class="fa fa-info-circle mr-2"></i><b>Selected:</b> ${name}`;
+            note.style.display = "block";
+            toggleDropdown();
+            calc();
+        }
+
+        function calc() {
+            const pricePerThousand = parseFloat(document.getElementById('servSelect').value) || 0;
+            const isCommentBoxVisible = !document.getElementById('commentBox').classList.contains('hidden');
+            let quantity = 0;
+            if (isCommentBoxVisible) {
+                quantity = document.getElementById('customComments').value.split('\n').filter(l => l.trim() !== "").length;
+                document.getElementById('qty').value = quantity;
+            } else {
+                quantity = parseFloat(document.getElementById('qty').value) || 0;
+            }
+            const total = (pricePerThousand / 1000) * quantity;
+            document.getElementById('total').innerText = Math.ceil(total).toLocaleString() + " MMK";
+        }
+
+        async function placeOrder() {
+            if(!currentUser) return alert("Please Sign In first!");
+            if(!selectedServiceData) return alert("Please select a service!");
+            
+            const btn = document.getElementById('orderBtn');
+            const quantity = document.getElementById('qty').value;
+            const link = document.getElementById('link').value.trim();
+            const finalCharge = parseFloat(document.getElementById('total').innerText.replace(/[^0-9.]/g, ''));
+
+            if(!link) return alert("Please enter a link or username!");
+            if(!quantity || quantity <= 0) return alert("Please enter a valid quantity!");
+
+            btn.disabled = true;
+            btn.innerText = "Processing Order...";
+            btn.classList.add('opacity-50', 'cursor-not-allowed');
+
+            try {
+                const res = await fetch(`${API_BASE}/api/order`, {
+                    method: 'POST', 
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        userEmail: currentUser.email,
+                        serviceId: selectedServiceData.id,
+                        serviceName: selectedServiceData.name,
+                        link, quantity, charge: finalCharge
+                    })
+                });
+                const data = await res.json();
+                if(data.success) { 
+                    alert("Order Placed Successfully! Order ID: " + data.orderId);
+                    document.getElementById('link').value = "";
+                    document.getElementById('qty').value = "";
+                    document.getElementById('customComments').value = "";
+                    calc(); refreshDashboard();
+                } else alert("Error: " + data.error);
+            } catch (err) { alert("Server connection failed."); }
+            finally {
+                btn.disabled = false; btn.innerText = "Place Order Now";
+                btn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        }
+
+        async function loadHistory() {
+            if (!currentUser) return;
+            const table = document.getElementById('historyTable');
+            try {
+                const res = await fetch(`${API_BASE}/api/orders/${currentUser.email}`);
+                const data = await res.json();
+                if (data.success) {
+                    document.getElementById('uOrders').innerText = data.orders.length;
+                    const html = data.orders.map(o => {
+                        let statusColor = "bg-blue-500/10 text-blue-500";
+                        const s = o.status.toLowerCase();
+                        if(s === "completed") statusColor = "bg-green-500/10 text-green-500";
+                        else if(["canceled", "cancelled", "partial"].includes(s)) statusColor = "bg-red-500/10 text-red-500";
+                        else if(["processing", "inprogress", "pending"].includes(s)) statusColor = "bg-yellow-500/10 text-yellow-500";
+                        return `
+                        <tr class="border-b border-gray-800 hover:bg-white/5 transition">
+                            <td class="p-5 font-mono text-blue-400">#${o.shweOrderId}</td>
+                            <td class="p-5">
+                                <p class="font-bold text-xs">${o.serviceName}</p>
+                                <p class="text-[10px] text-gray-500 truncate w-40">${o.link}</p>
+                            </td>
+                            <td class="p-5 text-green-400 font-bold">${o.charge.toLocaleString()} MMK</td>
+                            <td class="p-5">
+                                <span class="px-2 py-1 rounded ${statusColor} text-[10px] uppercase font-bold">${o.status}</span>
+                            </td>
+                        </tr>`;
+                    }).join('');
+                    table.innerHTML = html || '<tr><td colspan="4" class="p-10 text-center text-gray-600 italic">No orders found.</td></tr>';
+                }
+            } catch (err) { table.innerHTML = '<tr><td colspan="4" class="p-10 text-center text-red-500">Failed to load history.</td></tr>'; }
+        }
+
+        function handleAuth(type) {
+            const email = prompt("Email:");
+            const password = prompt("Password:");
+            if(!email || !password) return;
+            const ref = localStorage.getItem('referral_by'); 
+            fetch(`${API_BASE}/api/${type}`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ email, password, ref })
+            }).then(res => res.json()).then(data => {
+                if(data.success) {
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    if(type === 'signup') localStorage.removeItem('referral_by'); 
+                    location.reload();
+                } else alert(data.error);
+            });
+        }
+
+        function logout() { if(confirm("Are you sure you want to logout?")) { localStorage.removeItem('user'); location.reload(); } }
+
+        function showSection(id) {
+            document.getElementById('orderSection').classList.toggle('hidden', id !== 'new-order');
+            document.getElementById('historySection').classList.toggle('hidden', id !== 'history');
+            if (id === 'history') loadHistory();
+        }
+
+        function filterCat(name) {
+            const dropdown = document.getElementById('catSelect');
+            const target = Array.from(dropdown.options).find(opt => opt.value.toLowerCase().includes(name.toLowerCase()));
+            if (target) { 
+                dropdown.value = target.value; 
+                loadServices(); 
+                dropdown.scrollIntoView({behavior: "smooth", block: "center"});
+            }
+        }
+    </script>
+    <script type="text/javascript">
+    var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+    (function(){
+    var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+    s1.async=true; s1.src='https://embed.tawk.to/69dbbe77e0ef771c36228a8e/1jm1601fr';
+    s1.charset='UTF-8'; s1.setAttribute('crossorigin','*');
+    s0.parentNode.insertBefore(s1,s0);
+    })();
+    </script>
+</body>
+</html>
