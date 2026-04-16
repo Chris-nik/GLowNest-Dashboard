@@ -8,8 +8,9 @@ document.getElementById('service-select').addEventListener('change', function() 
     const commentTextarea = document.getElementById('custom-comments');
     const displayPrice = document.getElementById('display-price');
 
+    // TikTok Custom Comments ID: 262
     if (selectedServiceId === "262") {
-        quantityInput.readOnly = true; // Manual ရိုက်လို့မရအောင် ပိတ်ထားမယ်
+        quantityInput.readOnly = true; 
         commentContainer.style.display = 'block'; 
         
         commentTextarea.addEventListener('input', function() {
@@ -18,7 +19,7 @@ document.getElementById('service-select').addEventListener('change', function() 
             
             quantityInput.value = count;
             
-            // ShweBoost Price (11900 per 1000) ကို 2x တင်ထားတဲ့ GlowNest Price
+            // Price calculation (GlowNest 2x Pricing)
             const pricePerUnit = 11900 / 1000; 
             const total = pricePerUnit * count;
             displayPrice.innerText = Math.ceil(total) + " MMK";
@@ -26,25 +27,29 @@ document.getElementById('service-select').addEventListener('change', function() 
     } else {
         quantityInput.readOnly = false;
         commentContainer.style.display = 'none';
+        quantityInput.value = ""; // Clear values if service changed
+        displayPrice.innerText = "0 MMK";
     }
 });
 
-// 2. PLACE ORDER FUNCTION (အဓိက အပိုင်း)
+// 2. PLACE ORDER FUNCTION
 async function placeOrder() {
     const submitBtn = document.getElementById('place-order-btn');
-    const userEmail = localStorage.getItem('userEmail'); // သိမ်းထားတဲ့ Email ကိုယူမယ်
-    const serviceId = document.getElementById('service-select').value;
+    const userEmail = localStorage.getItem('userEmail'); 
+    const serviceSelect = document.getElementById('service-select');
+    const serviceId = serviceSelect.value;
     const link = document.getElementById('link-input').value;
     const quantity = document.getElementById('quantity').value;
-    const comments = document.getElementById('custom-comments').value; // Comment စာသားများယူမယ်
+    const comments = document.getElementById('custom-comments').value; 
     
-    // Price ကို စာသားထဲကနေ ကိန်းဂဏန်းအဖြစ်ပြောင်းမယ်
+    // Price logic
     const chargeText = document.getElementById('display-price').innerText;
-    const charge = parseInt(chargeText.replace(/[^0-9]/g, ''));
+    const charge = parseInt(chargeText.replace(/[^0-9]/g, '')) || 0;
 
-    if (!link || !quantity || quantity <= 0) {
-        return alert("Link နှင့် Quantity ကို မှန်ကန်စွာ ထည့်သွင်းပေးပါ။");
-    }
+    // Validation
+    if (!userEmail) return alert("ကျေးဇူးပြု၍ အရင် Login ဝင်ပါ။");
+    if (!link) return alert("Link ထည့်သွင်းပေးပါ။");
+    if (!quantity || quantity <= 0) return alert("Quantity အနည်းဆုံး ၁ ခု ရှိရပါမည်။");
 
     try {
         submitBtn.disabled = true;
@@ -53,29 +58,30 @@ async function placeOrder() {
         const orderData = {
             userEmail: userEmail,
             serviceId: serviceId,
-            serviceName: document.getElementById('service-select').options[document.getElementById('service-select').selectedIndex].text,
+            serviceName: serviceSelect.options[serviceSelect.selectedIndex].text,
             link: link,
             quantity: quantity,
             charge: charge,
-            comments: comments // Backend ဆီသို့ Comment များ ပို့လိုက်ပြီ!
+            comments: comments // TikTok Comments အတွက် အရေးကြီးဆုံးအပိုင်း
         };
 
-        const response = await axios.post('https://မင်းရဲ့-render-link.onrender.com/api/order', orderData);
+        // Render URL (GlowNest-API)
+        const response = await axios.post('https://glownest-api.onrender.com/api/order', orderData);
 
         if (response.data.success) {
             alert("✅ Order အောင်မြင်ပါသည်။ Order ID: " + response.data.orderId);
-            window.location.reload(); // Page ကို refresh လုပ်ပြီး balance update ကြည့်မယ်
+            window.location.reload(); 
         } else {
             alert("❌ Error: " + response.data.error);
         }
     } catch (err) {
         console.error("Order Error:", err);
-        alert("Server နှင့် ချိတ်ဆက်မှု မရရှိပါ။");
+        alert("Server Error: Render API သို့ ချိတ်ဆက်၍မရပါ။");
     } finally {
         submitBtn.disabled = false;
         submitBtn.innerText = "PLACE ORDER NOW";
     }
 }
 
-// ခလုတ်ကို နှိပ်ရင် placeOrder function အလုပ်လုပ်အောင် ချိတ်မယ်
+// Event Listener for Place Order Button
 document.getElementById('place-order-btn').addEventListener('click', placeOrder);
