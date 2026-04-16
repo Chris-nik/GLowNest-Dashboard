@@ -27,7 +27,7 @@ document.getElementById('service-select').addEventListener('change', function() 
     } else {
         quantityInput.readOnly = false;
         commentContainer.style.display = 'none';
-        quantityInput.value = ""; // Clear values if service changed
+        quantityInput.value = ""; 
         displayPrice.innerText = "0 MMK";
     }
 });
@@ -46,10 +46,19 @@ async function placeOrder() {
     const chargeText = document.getElementById('display-price').innerText;
     const charge = parseInt(chargeText.replace(/[^0-9]/g, '')) || 0;
 
-    // Validation
+    // --- VALIDATION ---
     if (!userEmail) return alert("ကျေးဇူးပြု၍ အရင် Login ဝင်ပါ။");
     if (!link) return alert("Link ထည့်သွင်းပေးပါ။");
-    if (!quantity || quantity <= 0) return alert("Quantity အနည်းဆုံး ၁ ခု ရှိရပါမည်။");
+    
+    // TikTok Comments (262) အတွက် အထူးစစ်ဆေးချက်
+    if (serviceId === "262") {
+        const commentLines = comments.split('\n').filter(line => line.trim() !== "");
+        if (commentLines.length < 10) {
+            return alert("TikTok Comments အတွက် အနည်းဆုံး စာကြောင်း (၁၀) ကြောင်း ရိုက်ထည့်ပေးရပါမည်။");
+        }
+    } else if (!quantity || quantity <= 0) {
+        return alert("Quantity အနည်းဆုံး ၁ ခု ရှိရပါမည်။");
+    }
 
     try {
         submitBtn.disabled = true;
@@ -62,7 +71,7 @@ async function placeOrder() {
             link: link,
             quantity: quantity,
             charge: charge,
-            comments: comments // TikTok Comments အတွက် အရေးကြီးဆုံးအပိုင်း
+            comments: comments 
         };
 
         // Render URL (GlowNest-API)
@@ -83,5 +92,4 @@ async function placeOrder() {
     }
 }
 
-// Event Listener for Place Order Button
 document.getElementById('place-order-btn').addEventListener('click', placeOrder);
