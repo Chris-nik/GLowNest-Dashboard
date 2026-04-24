@@ -10,22 +10,13 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
         body { background-color: #0b1120; color: white; font-family: 'Inter', sans-serif; overflow-x: hidden; }
         
-        /* Desktop Sidebar */
         .sidebar { background: #111827; border-right: 1px solid #1f2937; width: 260px; height: 100vh; position: fixed; z-index: 50; }
-        
-        /* Mobile Overlay Menu */
         #mobile-menu { position: fixed; inset: 0; background: #0b1120; z-index: 100; display: none; padding: 20px; }
 
         .input-box { 
-            background: #0f172a; 
-            border: 1px solid #1e293b; 
-            padding: 12px; 
-            border-radius: 10px; 
-            width: 100%; 
-            color: white; 
-            margin-bottom: 15px; 
-            outline: none; 
-            transition: 0.3s; 
+            background: #0f172a; border: 1px solid #1e293b; padding: 12px; 
+            border-radius: 10px; width: 100%; color: white; margin-bottom: 15px; 
+            outline: none; transition: 0.3s; 
         }
 
         .custom-select-container { position: relative; width: 100%; margin-bottom: 15px; }
@@ -38,13 +29,8 @@
             width: 100%; z-index: 99; border-radius: 10px; margin-top: 5px;
             max-height: 350px; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.5);
         }
-        .search-box-container {
-            position: sticky; top: 0; background: #111827; padding: 10px; border-bottom: 1px solid #1e293b;
-        }
-        .select-items div {
-            padding: 12px; cursor: pointer; border-bottom: 1px solid #1e293b;
-            font-size: 0.85rem; line-height: 1.4; transition: 0.2s;
-        }
+        .search-box-container { position: sticky; top: 0; background: #111827; padding: 10px; border-bottom: 1px solid #1e293b; }
+        .select-items div { padding: 12px; cursor: pointer; border-bottom: 1px solid #1e293b; font-size: 0.85rem; line-height: 1.4; transition: 0.2s; }
         .select-items div:hover { background: #1e293b; color: #3b82f6; }
         .select-hide { display: none; }
         .rotate { transform: rotate(180deg); }
@@ -63,7 +49,6 @@
     </style>
 </head>
 <body class="flex flex-col md:flex-row">
-
     <div class="md:hidden flex justify-between items-center p-4 bg-[#111827] border-b border-gray-800 sticky top-0 z-[60]">
         <h1 class="text-xl font-bold accent italic uppercase tracking-tighter">GlowNest</h1>
         <button onclick="toggleMobileMenu()" class="text-2xl p-2"><i class="fa fa-bars"></i></button>
@@ -74,8 +59,7 @@
             <h1 class="text-2xl font-bold accent italic">MENU</h1>
             <button onclick="toggleMobileMenu()" class="text-3xl text-gray-400">&times;</button>
         </div>
-        <nav class="space-y-4 text-lg" id="mobile-nav-content">
-            </nav>
+        <nav class="space-y-4 text-lg" id="mobile-nav-content"></nav>
     </div>
 
     <div class="sidebar hidden md:flex p-6 flex-col">
@@ -87,10 +71,9 @@
             <button onclick="showSection('history'); closeMobileMenu()" class="w-full text-left p-3 rounded-lg hover:bg-gray-800 transition flex items-center">
                 <i class="fa fa-history mr-3 accent w-5"></i> အော်ဒါမှတ်တမ်း
             </button>
-            <a href="https://t.me/NZDigitalSupportMyanmar" target="_blank" class="flex items-center p-3 rounded-lg text-green-400 hover:bg-gray-800 transition">
-                <i class="fa fa-wallet mr-3 w-5"></i> Add Fund (Telegram)
+            <a href="https://t.me/Chris_nik" target="_blank" class="flex items-center p-3 rounded-lg text-green-400 hover:bg-gray-800 transition">
+                <i class="fa fa-wallet mr-3 w-5"></i> ငွေဖြည့်ရန်
             </a>
-            
             <div id="referral-nav" class="hidden border-t border-gray-800 mt-4 pt-4">
                 <p class="text-[10px] text-gray-500 uppercase font-bold mb-2">Referral Program</p>
                 <div class="bg-blue-900/20 p-3 rounded-lg border border-blue-500/30 text-center">
@@ -104,12 +87,10 @@
                 </div>
             </div>
         </nav>
-
         <div id="auth-buttons" class="border-t border-gray-800 pt-5 space-y-2">
             <button onclick="handleAuth('signin')" class="w-full p-2 border border-gray-700 rounded text-sm hover:bg-gray-800">Sign In</button>
             <button onclick="handleAuth('signup')" class="w-full p-2 bg-white text-black rounded font-bold text-sm hover:opacity-90">Sign Up</button>
         </div>
-
         <div id="user-profile" class="hidden border-t border-gray-800 pt-5">
             <div class="bg-blue-600/10 p-4 rounded-xl border border-blue-500/20">
                 <p class="text-[10px] text-gray-400 uppercase font-bold">Account</p>
@@ -120,7 +101,6 @@
     </div>
 
     <div class="flex-1 md:ml-[260px] p-4 md:p-10 w-full min-h-screen bg-[#0b1120]">
-        
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8 mt-2">
             <div class="bg-[#111827] p-5 md:p-6 rounded-2xl border border-gray-800 shadow-xl">
                 <p class="text-gray-500 text-[10px] font-bold uppercase tracking-widest mb-1">လက်ကျန်ငွေ</p>
@@ -138,7 +118,6 @@
 
         <div id="orderSection" class="max-w-3xl mx-auto md:mx-0">
             <h2 class="text-xl md:text-2xl font-bold mb-6 text-center md:text-left">အော်ဒါအသစ်တင်ရန် (New Order)</h2>
-            
             <div class="flex flex-wrap gap-3 mb-6 bg-[#111827] p-4 rounded-2xl border border-gray-800 justify-center">
                 <button title="Telegram" onclick="filterCat('Telegram')" class="cat-btn w-10 h-10 md:w-12 md:h-12 rounded-xl bg-[#24A1DE] flex items-center justify-center text-lg shadow-lg"><i class="fab fa-telegram-plane"></i></button>
                 <button title="TikTok" onclick="filterCat('TikTok')" class="cat-btn w-10 h-10 md:w-12 md:h-12 rounded-xl bg-black border border-gray-700 flex items-center justify-center text-lg shadow-lg"><i class="fab fa-tiktok"></i></button>
@@ -146,11 +125,9 @@
                 <button title="Instagram" onclick="filterCat('Instagram')" class="cat-btn w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] flex items-center justify-center text-lg shadow-lg"><i class="fab fa-instagram"></i></button>
                 <button title="YouTube" onclick="filterCat('YouTube')" class="cat-btn w-10 h-10 md:w-12 md:h-12 rounded-xl bg-[#FF0000] flex items-center justify-center text-lg shadow-lg"><i class="fab fa-youtube"></i></button>
             </div>
-
             <div class="bg-[#111827] p-6 md:p-8 rounded-3xl border border-gray-800 shadow-2xl">
                 <label class="text-[10px] text-gray-500 font-bold mb-1 block">Category</label>
                 <select id="catSelect" class="input-box" onchange="loadServices()" style="appearance: auto;"></select>
-
                 <label class="text-[10px] text-gray-500 font-bold mb-1 block">Services (စျေးနှုန်းကြည့်ရန် ဝန်ဆောင်မှုရွေးပါ)</label>
                 <div class="custom-select-container">
                     <div id="customSelectTrigger" class="select-selected" onclick="toggleDropdown()">
@@ -165,27 +142,21 @@
                     </div>
                     <input type="hidden" id="servSelect" value="" onchange="calc()">
                 </div>
-
                 <div id="serviceNote"></div>
-
                 <label class="text-[10px] text-gray-500 font-bold mb-1 block">Link / Username</label>
                 <input type="text" id="link" placeholder="Enter link here" class="input-box text-sm">
-
                 <div id="qtyBox">
                     <label class="text-[10px] text-gray-500 font-bold mb-1 block">Quantity</label>
                     <input type="number" id="qty" placeholder="1000" class="input-box text-sm" oninput="calc()">
                 </div>
-
                 <div id="commentBox" class="hidden">
                     <label class="text-[10px] text-gray-500 font-bold mb-1 block">Comments (1 per line)</label>
                     <textarea id="customComments" rows="5" class="input-box text-sm" placeholder="Write each comment on a new line..." oninput="calc()"></textarea>
                 </div>
-
                 <div class="p-4 bg-black/40 rounded-2xl mb-6 flex justify-between items-center border border-gray-800">
                     <span class="text-gray-400 font-bold uppercase text-[10px]">Total Charge</span>
                     <span id="total" class="text-xl font-bold text-green-400">0 MMK</span>
                 </div>
-
                 <button id="orderBtn" onclick="placeOrder()" class="w-full bg-blue-600 p-4 rounded-xl font-bold text-md hover:bg-blue-500 transition shadow-lg uppercase">Place Order Now</button>
             </div>
         </div>
@@ -206,22 +177,16 @@
     </div>
 
     <script>
-        // Mobile Menu Toggles
         function toggleMobileMenu() {
             const menu = document.getElementById('mobile-menu');
             const navContent = document.getElementById('nav-links').innerHTML;
             const authContent = document.getElementById('auth-buttons').outerHTML;
             const profileContent = document.getElementById('user-profile').outerHTML;
-            
             document.getElementById('mobile-nav-content').innerHTML = navContent + authContent + profileContent;
             menu.style.display = (menu.style.display === 'flex') ? 'none' : 'flex';
         }
+        function closeMobileMenu() { document.getElementById('mobile-menu').style.display = 'none'; }
 
-        function closeMobileMenu() {
-            document.getElementById('mobile-menu').style.display = 'none';
-        }
-
-        // --- Keep all your existing Logic below here ---
         const urlParams = new URLSearchParams(window.location.search);
         const refCode = urlParams.get('ref');
         if (refCode) localStorage.setItem('referral_by', refCode);
@@ -236,7 +201,6 @@
             fetchServices();
             refreshDashboard();
             setInterval(() => { if (currentUser) refreshDashboard(); }, 60000); 
-            
             window.onclick = (e) => {
                 if (!e.target.closest('.custom-select-container')) {
                     document.getElementById('customOptions').classList.add('select-hide');
@@ -253,21 +217,13 @@
                 if (data.success) {
                     document.getElementById('uBal').innerText = (data.balance || 0).toLocaleString() + " MMK";
                     document.getElementById('uSpent').innerText = (data.spent || 0).toLocaleString() + " MMK";
-                    
-                    // Update both mobile and desktop views
-                    const auths = document.querySelectorAll('#auth-buttons');
-                    auths.forEach(a => a.classList.add('hidden'));
-                    
-                    const profiles = document.querySelectorAll('#user-profile');
-                    profiles.forEach(p => p.classList.remove('hidden'));
-                    
+                    document.querySelectorAll('#auth-buttons').forEach(a => a.classList.add('hidden'));
+                    document.querySelectorAll('#user-profile').forEach(p => p.classList.remove('hidden'));
                     document.querySelectorAll('#displayEmail').forEach(e => e.innerText = currentUser.email);
-                    
                     document.getElementById('referral-nav').classList.remove('hidden');
                     const refLink = `https://glownestmm.netlify.app/index.html?ref=${data.referralCode}`;
                     document.getElementById('refLinkInput').value = refLink;
                     document.getElementById('refBalText').innerText = (data.referralBalance || 0).toLocaleString() + " MMK";
-                    
                     document.getElementById('claimBtn').classList.toggle('hidden', data.referralBalance < 1000);
                     loadHistory(); 
                 }
@@ -316,11 +272,9 @@
             const cat = document.getElementById('catSelect').value;
             filteredServicesList = allServices.filter(s => s.category === cat);
             const isCommentCat = cat.toLowerCase().includes("comment");
-            
             document.getElementById('commentBox').classList.toggle('hidden', !isCommentCat);
             document.getElementById('qtyBox').classList.toggle('hidden', isCommentCat);
             document.getElementById('serviceSearch').value = ""; 
-            
             renderOptions(filteredServicesList);
             document.getElementById('selectedText').innerText = "Select a service";
             document.getElementById('servSelect').value = "";
@@ -386,13 +340,10 @@
             const quantity = document.getElementById('qty').value;
             const link = document.getElementById('link').value.trim();
             const finalCharge = parseFloat(document.getElementById('total').innerText.replace(/[^0-9.]/g, ''));
-
             if(!link) return alert("Please enter a link!");
             if(!quantity || quantity <= 0) return alert("Invalid quantity!");
-
             btn.disabled = true;
             btn.innerText = "Processing...";
-
             try {
                 const res = await fetch(`${API_BASE}/api/order`, {
                     method: 'POST', 
@@ -410,9 +361,7 @@
                     refreshDashboard();
                 } else alert("Error: " + data.error);
             } catch (err) { alert("Server connection failed."); }
-            finally {
-                btn.disabled = false; btn.innerText = "Place Order Now";
-            }
+            finally { btn.disabled = false; btn.innerText = "Place Order Now"; }
         }
 
         async function loadHistory() {
@@ -461,12 +410,10 @@
         }
 
         function logout() { if(confirm("Logout?")) { localStorage.removeItem('user'); location.reload(); } }
-
         function showSection(id) {
             document.getElementById('orderSection').classList.toggle('hidden', id !== 'new-order');
             document.getElementById('historySection').classList.toggle('hidden', id !== 'history');
         }
-
         function filterCat(name) {
             const dropdown = document.getElementById('catSelect');
             const target = Array.from(dropdown.options).find(opt => opt.value.toLowerCase().includes(name.toLowerCase()));
@@ -478,4 +425,4 @@
     </script>
     <script async src='https://embed.tawk.to/69dbbe77e0ef771c36228a8e/1jm1601fr' charset='UTF-8' crossorigin='*'></script>
 </body>
-</html>
+</html> 
