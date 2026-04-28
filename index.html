@@ -45,6 +45,7 @@
         #serviceNote {
             background: rgba(59, 130, 246, 0.1); border: 1px dashed rgba(59, 130, 246, 0.4);
             color: #93c5fd; padding: 12px; border-radius: 8px; font-size: 0.8rem; margin-bottom: 15px; display: none;
+            word-wrap: break-word;
         }
     </style>
 </head>
@@ -71,7 +72,7 @@
             <button onclick="showSection('history'); closeMobileMenu()" class="w-full text-left p-3 rounded-lg hover:bg-gray-800 transition flex items-center">
                 <i class="fa fa-history mr-3 accent w-5"></i> အော်ဒါမှတ်တမ်း
             </button>
-            <a href="https://t.me/Chris_nik" target="_blank" class="flex items-center p-3 rounded-lg text-green-400 hover:bg-gray-800 transition">
+            <a href="https://t.me/DigitalProductburma/123" target="_blank" class="flex items-center p-3 rounded-lg text-green-400 hover:bg-gray-800 transition">
                 <i class="fa fa-wallet mr-3 w-5"></i> ငွေဖြည့်ရန်
             </a>
             <div id="referral-nav" class="hidden border-t border-gray-800 mt-4 pt-4">
@@ -125,9 +126,11 @@
                 <button title="Instagram" onclick="filterCat('Instagram')" class="cat-btn w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] flex items-center justify-center text-lg shadow-lg"><i class="fab fa-instagram"></i></button>
                 <button title="YouTube" onclick="filterCat('YouTube')" class="cat-btn w-10 h-10 md:w-12 md:h-12 rounded-xl bg-[#FF0000] flex items-center justify-center text-lg shadow-lg"><i class="fab fa-youtube"></i></button>
             </div>
+            
             <div class="bg-[#111827] p-6 md:p-8 rounded-3xl border border-gray-800 shadow-2xl">
                 <label class="text-[10px] text-gray-500 font-bold mb-1 block">Category</label>
                 <select id="catSelect" class="input-box" onchange="loadServices()" style="appearance: auto;"></select>
+                
                 <label class="text-[10px] text-gray-500 font-bold mb-1 block">Services (စျေးနှုန်းကြည့်ရန် ဝန်ဆောင်မှုရွေးပါ)</label>
                 <div class="custom-select-container">
                     <div id="customSelectTrigger" class="select-selected" onclick="toggleDropdown()">
@@ -142,21 +145,27 @@
                     </div>
                     <input type="hidden" id="servSelect" value="" onchange="calc()">
                 </div>
+
                 <div id="serviceNote"></div>
+
                 <label class="text-[10px] text-gray-500 font-bold mb-1 block">Link / Username</label>
                 <input type="text" id="link" placeholder="Enter link here" class="input-box text-sm">
+                
                 <div id="qtyBox">
                     <label class="text-[10px] text-gray-500 font-bold mb-1 block">Quantity</label>
                     <input type="number" id="qty" placeholder="1000" class="input-box text-sm" oninput="calc()">
                 </div>
+                
                 <div id="commentBox" class="hidden">
                     <label class="text-[10px] text-gray-500 font-bold mb-1 block">Comments (1 per line)</label>
                     <textarea id="customComments" rows="5" class="input-box text-sm" placeholder="Write each comment on a new line..." oninput="calc()"></textarea>
                 </div>
+                
                 <div class="p-4 bg-black/40 rounded-2xl mb-6 flex justify-between items-center border border-gray-800">
                     <span class="text-gray-400 font-bold uppercase text-[10px]">Total Charge</span>
                     <span id="total" class="text-xl font-bold text-green-400">0 MMK</span>
                 </div>
+                
                 <button id="orderBtn" onclick="placeOrder()" class="w-full bg-blue-600 p-4 rounded-xl font-bold text-md hover:bg-blue-500 transition shadow-lg uppercase">Place Order Now</button>
             </div>
         </div>
@@ -291,7 +300,11 @@
             }
             container.innerHTML = list.map(s => {
                 const price = parseFloat(s.price);
-                return `<div onclick="selectService('${s.serviceId}', '${s.name.replace(/'/g, "\\'")}', ${price})">
+                // Safe way to handle descriptions with special characters
+                const safeDesc = s.description ? btoa(unescape(encodeURIComponent(s.description))) : "";
+                const safeName = s.name.replace(/'/g, "\\'");
+                
+                return `<div onclick="selectService('${s.serviceId}', '${safeName}', ${price}, '${safeDesc}')">
                     <span class="block font-bold mb-1 text-xs">${s.name}</span>
                     <span class="text-blue-400 font-mono text-[10px] uppercase">[ ${price.toLocaleString()} MMK per 1000 ]</span>
                 </div>`;
@@ -308,13 +321,18 @@
             document.getElementById('arrowIcon').classList.toggle('rotate');
         }
 
-        function selectService(id, name, price) {
+        function selectService(id, name, price, base64Desc) {
+            // Decode the description
+            const decodedDesc = base64Desc ? decodeURIComponent(escape(atob(base64Desc))) : "No details";
+            
             document.getElementById('selectedText').innerText = name;
             document.getElementById('servSelect').value = price;
-            selectedServiceData = { id, name, price };
+            selectedServiceData = { id, name, price, description: decodedDesc };
+            
             const note = document.getElementById('serviceNote');
-            note.innerHTML = `<i class="fa fa-info-circle mr-2"></i><b>Selected:</b> ${name}`;
+            note.innerHTML = `<i class="fa fa-info-circle mr-2"></i><b>ဖတ်ရန်:</b><br>${decodedDesc}`;
             note.style.display = "block";
+            
             toggleDropdown();
             calc();
         }
@@ -425,4 +443,4 @@
     </script>
     <script async src='https://embed.tawk.to/69dbbe77e0ef771c36228a8e/1jm1601fr' charset='UTF-8' crossorigin='*'></script>
 </body>
-</html> 
+</html>
