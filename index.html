@@ -300,7 +300,6 @@
             }
             container.innerHTML = list.map(s => {
                 const price = parseFloat(s.price);
-                // Safe way to handle descriptions with special characters
                 const safeDesc = s.description ? btoa(unescape(encodeURIComponent(s.description))) : "";
                 const safeName = s.name.replace(/'/g, "\\'");
                 
@@ -322,7 +321,6 @@
         }
 
         function selectService(id, name, price, base64Desc) {
-            // Decode the description
             const decodedDesc = base64Desc ? decodeURIComponent(escape(atob(base64Desc))) : "No details";
             
             document.getElementById('selectedText').innerText = name;
