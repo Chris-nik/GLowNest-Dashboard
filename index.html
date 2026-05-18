@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="my">
-<head><link rel="stylesheet" href="style.css"> 
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GlowNest | Ultimate Luxury Dashboard</title>
@@ -263,7 +263,7 @@
                 <div class="pt-4 border-t border-white/[0.03] my-2"></div>
 
                 <button onclick="openDepositModal(); closeMobileMenu()" class="w-full text-left px-5 py-4 rounded-xl text-emerald-400 bg-emerald-500/[0.02] border border-emerald-500/10 hover:bg-emerald-500/10 hover:border-emerald-500/20 transition flex items-center text-sm font-bold tracking-wide">
-                    <i class="fa fa-wallet mr-4 text-emerald-400 w-5 text-center text-base animate-pulse"></i> Ngwe Phyat Yan (ငွေဖြည့်ရန်)
+                    <i class="fa fa-wallet mr-4 text-emerald-400 w-5 text-center text-base animate-pulse"></i> Add Balance (ငွေဖြည့်ရန်)
                 </button>
                 
                 <div id="referral-nav" class="hidden border-t border-white/[0.04] mt-6 pt-6">
@@ -468,7 +468,7 @@
             <button onclick="closeDepositModal()" class="absolute top-5 right-5 text-gray-400 hover:text-white text-2xl transition-colors">&times;</button>
             
             <div class="text-center space-y-1.5 border-b border-white/[0.03] pb-4">
-                <h3 class="text-lg font-black text-white uppercase tracking-widest font-mono">Ngwe Phyat Yan (ငွေဖြည့်ရန်)</h3>
+                <h3 class="text-lg font-black text-white uppercase tracking-widest font-mono">Add Balance (ငွေဖြည့်ရန်)</h3>
                 <p class="text-xs text-gray-400">ငွေဖြည့်သွင်းရန်အတွက် အောက်ပါ Payment Gateways များအား အသုံးပြုပါ</p>
             </div>
 
@@ -516,6 +516,14 @@
                     <label class="text-[11px] font-semibold text-gray-400 block uppercase tracking-wider">Secret Authorization Key</label>
                     <input type="password" id="authPassword" placeholder="••••••••" class="input-box text-sm font-mono mb-0">
                 </div>
+
+                <div id="tosContainer" class="flex items-start space-x-2.5 pt-1 pb-1">
+                    <input type="checkbox" id="authTos" class="w-4 h-4 rounded border-white/10 bg-black/40 text-blue-600 focus:ring-blue-500/50 focus:ring-offset-0 transition-all accent-blue-600 cursor-pointer mt-0.5">
+                    <label for="authTos" class="text-[11px] text-gray-400 select-none cursor-pointer leading-tight">
+                       တောသားမဟုတ်ကြောင်း <a href="#" class="text-blue-400 hover:underline font-semibold">Anderson</a> အား လေးစားစွာ အတည်ပြုပါ။ 
+                    </label>
+                </div>
+
                 <button id="authSubmitBtn" onclick="submitAuthForm()" class="w-full bg-blue-600 hover:bg-blue-500 text-white p-3.5 rounded-xl font-bold text-xs uppercase tracking-widest transition-all mt-2 shadow-md shadow-blue-950/10">Verify Secure Credentials</button>
                 
                 <div class="flex items-center justify-center gap-3 pt-3 text-[9px] text-gray-500 font-black tracking-widest">
@@ -591,19 +599,23 @@
             const title = document.getElementById('authModalTitle');
             const desc = document.getElementById('authModalDesc');
             const googleText = document.getElementById('googleAuthText');
+            const tosContainer = document.getElementById('tosContainer');
             
             if(type === 'signin') {
                 title.innerText = "Sign In Workspace";
                 desc.innerText = "Connect global profile session state variables to your canvas terminal link";
                 googleText.innerText = "Sign In With Google";
+                if(tosContainer) tosContainer.style.display = "none"; // Hide on login
             } else {
                 title.innerText = "Register Profile Slot";
                 desc.innerText = "Provision an isolated system account instance node entry token";
                 googleText.innerText = "Sign Up With Google";
+                if(tosContainer) tosContainer.style.display = "flex"; // Show on register
             }
             
             document.getElementById('authEmail').value = "";
             document.getElementById('authPassword').value = "";
+            if(document.getElementById('authTos')) document.getElementById('authTos').checked = false;
             modal.style.display = 'flex';
         }
 
@@ -614,9 +626,16 @@
         function submitAuthForm() {
             const email = document.getElementById('authEmail').value.trim();
             const password = document.getElementById('authPassword').value.trim();
+            const tosChecked = document.getElementById('authTos') ? document.getElementById('authTos').checked : false;
             
             if(!email || !password) {
                 triggerAlert("Please map all requested authentication token identity properties.", "error");
+                return;
+            }
+
+            // Enforce Terms of Service compliance strictly for the Signup module channel
+            if (currentAuthType === 'signup' && !tosChecked) {
+                triggerAlert("You must agree to the Terms of Service to create an account workflow.", "error");
                 return;
             }
             
@@ -648,6 +667,11 @@
 
         /* --- GOOGLE OAUTH SECURITY DIRECTIVE ROUTER HANDSHAKE --- */
         function signInWithGoogle() {
+            const tosChecked = document.getElementById('authTos') ? document.getElementById('authTos').checked : false;
+            if (currentAuthType === 'signup' && !tosChecked) {
+                triggerAlert("You must agree to the Terms of Service to create an account workflow.", "error");
+                return;
+            }
             triggerAlert(`Initiating secure handshake connection endpoints with Google Oauth Node arrays...`, "info");
         }
 
@@ -661,7 +685,7 @@
         }
         function closeMobileMenu() { document.getElementById('mobile-menu').style.display = 'none'; }
 
-        function openDepositModal() { document.getElementById('depositModal').style.display = 'flex'; }
+        px = openDepositModal; function openDepositModal() { document.getElementById('depositModal').style.display = 'flex'; }
         function closeDepositModal() { document.getElementById('depositModal').style.display = 'none'; }
 
         function copyApiToken() {
