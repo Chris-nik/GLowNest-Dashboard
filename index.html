@@ -291,7 +291,10 @@
             </div>
             <div id="user-profile" class="hidden border-t border-white/5 pt-5">
                 <div class="bg-black/40 p-4 rounded-2xl border border-white/5 flex flex-col space-y-2">
-                    <span class="text-[9px] uppercase tracking-widest text-gray-500 font-bold font-mono">Logged Session Identity</span>
+                    <div class="flex items-center justify-between">
+                        <span class="text-[9px] uppercase tracking-widest text-gray-500 font-bold font-mono">Logged Session Identity</span>
+                        <span id="tierBadgeSidebar" class="text-[9px] px-2 py-0.5 rounded font-bold uppercase font-mono tracking-wider"></span>
+                    </div>
                     <p id="displayEmail" class="text-xs font-mono truncate text-gray-300 font-medium"></p>
                     <button onclick="logout()" class="text-rose-400 hover:text-rose-300 text-xs font-bold pt-1 transition flex items-center gap-1.5"><i class="fa-solid fa-power-off text-[11px]"></i> Terminate Session</button>
                 </div>
@@ -304,7 +307,10 @@
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
             <div class="luxury-card p-6 rounded-2xl flex flex-col justify-between relative overflow-hidden group">
                 <div class="absolute -right-4 -bottom-4 text-blue-500/5 text-7xl group-hover:scale-110 transition-transform"><i class="fa fa-wallet"></i></div>
-                <p class="text-gray-400 text-[11px] font-bold uppercase tracking-widest mb-3">လက်ကျန်ငွေ (Available Balance)</p>
+                <div class="flex justify-between items-start mb-3">
+                    <p class="text-gray-400 text-[11px] font-bold uppercase tracking-widest">လက်ကျန်ငွေ (Available Balance)</p>
+                    <span id="tierBadgeDashboard" class="text-[10px] px-2 py-0.5 rounded font-black uppercase font-mono tracking-wider shadow-sm"></span>
+                </div>
                 <div id="uBal" class="text-2xl font-black text-blue-400 font-mono tracking-tight">0 MMK</div>
             </div>
             <div class="luxury-card p-6 rounded-2xl flex flex-col justify-between relative overflow-hidden group">
@@ -381,7 +387,10 @@
                 <div class="p-5 bg-black/40 rounded-2xl flex justify-between items-center border border-white/5 shadow-inner">
                     <div class="flex flex-col">
                         <span class="text-gray-400 font-bold text-xs uppercase tracking-wider">စုစုပေါင်းကျသင့်ငွေ</span>
-                        <span class="text-[10px] text-gray-500 font-medium">Computed Operational Cost Basis</span>
+                        <div class="flex items-center gap-1.5 mt-0.5">
+                            <span class="text-[10px] text-gray-500 font-medium">Computed Operational Cost Basis</span>
+                            <span id="vipAppliedNotice" class="hidden text-[10px] text-amber-400 font-bold uppercase tracking-wider bg-amber-500/10 px-1.5 py-0.2 rounded border border-amber-500/20 animate-pulse">10% VIP Off Applied</span>
+                        </div>
                     </div>
                     <span id="total" class="text-2xl font-black text-emerald-400 font-mono tracking-tight">0 MMK</span>
                 </div>
@@ -551,6 +560,7 @@
         let filteredServicesList = [];
         let selectedServiceData = null;
         let currentUser = JSON.parse(localStorage.getItem('user'));
+        let userSpentAmount = 0; // Globally tracked state engine for live tier checking
         const API_BASE = "https://glownest-api-mavu.onrender.com"; 
 
         /* --- PRESTIGE SYSTEM TOAST ALERT MULTI-QUEUE INJECT ENGINE --- */
@@ -605,12 +615,12 @@
                 title.innerText = "Sign In Workspace";
                 desc.innerText = "Connect global profile session state variables to your canvas terminal link";
                 googleText.innerText = "Sign In With Google";
-                if(tosContainer) tosContainer.style.display = "none"; // Hide on login
+                if(tosContainer) tosContainer.style.display = "none"; 
             } else {
                 title.innerText = "Register Profile Slot";
                 desc.innerText = "Provision an isolated system account instance node entry token";
                 googleText.innerText = "Sign Up With Google";
-                if(tosContainer) tosContainer.style.display = "flex"; // Show on register
+                if(tosContainer) tosContainer.style.display = "flex"; 
             }
             
             document.getElementById('authEmail').value = "";
@@ -633,7 +643,6 @@
                 return;
             }
 
-            // Enforce Terms of Service compliance strictly for the Signup module channel
             if (currentAuthType === 'signup' && !tosChecked) {
                 triggerAlert("You must agree to the Terms of Service to create an account workflow.", "error");
                 return;
@@ -756,8 +765,27 @@
                 const res = await fetch(`${API_BASE}/api/user/${currentUser.email}`);
                 const data = await res.json();
                 if (data.success) {
+                    userSpentAmount = data.spent || 0; // Synchronize user spent data loop
+                    
+                    // Render real-time VIP level tracking badges safely inside front-end matrices
+                    const sideBadge = document.getElementById('tierBadgeSidebar');
+                    const dashBadge = document.getElementById('tierBadgeDashboard');
+                    const vipNotice = document.getElementById('vipAppliedNotice');
+                    
+                    if (userSpentAmount >= 50000) {
+                        const classes = ["bg-gradient-to-r", "from-amber-500", "to-yellow-600", "text-black", "border", "border-yellow-400/20"];
+                        if(sideBadge) { sideBadge.innerText = "VIP MEMBER"; sideBadge.classList.add(...classes); }
+                        if(dashBadge) { dashBadge.innerText = "VIP LEVEL"; dashBadge.classList.add(...classes); }
+                        if(vipNotice) vipNotice.classList.remove('hidden');
+                    } else {
+                        const classes = ["bg-slate-800", "text-slate-400", "border", "border-white/5"];
+                        if(sideBadge) { sideBadge.innerText = "STANDARD"; sideBadge.classList.add(...classes); }
+                        if(dashBadge) { dashBadge.innerText = "REGULAR"; dashBadge.classList.add(...classes); }
+                        if(vipNotice) vipNotice.classList.add('hidden');
+                    }
+
                     document.getElementById('uBal').innerText = (data.balance || 0).toLocaleString() + " MMK";
-                    document.getElementById('uSpent').innerText = (data.spent || 0).toLocaleString() + " MMK";
+                    document.getElementById('uSpent').innerText = userSpentAmount.toLocaleString() + " MMK";
                     document.querySelectorAll('#auth-buttons').forEach(a => a.classList.add('hidden'));
                     document.querySelectorAll('#user-profile').forEach(p => p.classList.remove('hidden'));
                     document.querySelectorAll('#displayEmail').forEach(e => e.innerText = currentUser.email);
@@ -909,7 +937,14 @@
             } else {
                 quantity = parseFloat(document.getElementById('qty').value) || 0;
             }
-            const total = (pricePerThousand / 1000) * quantity;
+            
+            let total = (pricePerThousand / 1000) * quantity;
+            
+            // Client-side visual presentation of VIP 10% markdown calculation logic 
+            if (userSpentAmount >= 50000) {
+                total = total * 0.90;
+            }
+            
             document.getElementById('total').innerText = Math.ceil(total).toLocaleString() + " MMK";
         }
 
@@ -919,6 +954,7 @@
             const btn = document.getElementById('orderBtn');
             const quantity = document.getElementById('qty').value;
             const link = document.getElementById('link').value.trim();
+            const commentsText = document.getElementById('customComments').value;
             const finalCharge = parseFloat(document.getElementById('total').innerText.replace(/[^0-9.]/g, ''));
             if(!link) return triggerAlert("Please specify target link parameter destination path.", "error");
             if(!quantity || quantity <= 0) return triggerAlert("Provided quantitative volume data metric size is invalid.", "error");
@@ -926,15 +962,21 @@
             btn.disabled = true;
             btn.innerText = "Transmitting Processing Data Vectors...";
             try {
+                const isCommentBoxVisible = !document.getElementById('commentBox').classList.contains('hidden');
+                const orderPayload = {
+                    userEmail: currentUser.email,
+                    serviceId: selectedServiceData.id,
+                    serviceName: selectedServiceData.name,
+                    link, quantity, charge: finalCharge
+                };
+                if(isCommentBoxVisible) {
+                    orderPayload.comments = commentsText;
+                }
+
                 const res = await fetch(`${API_BASE}/api/order`, {
                     method: 'POST', 
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        userEmail: currentUser.email,
-                        serviceId: selectedServiceData.id,
-                        serviceName: selectedServiceData.name,
-                        link, quantity, charge: finalCharge
-                    })
+                    body: JSON.stringify(orderPayload)
                 });
                 const data = await res.json();
                 if(data.success) { 
