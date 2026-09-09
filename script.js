@@ -1,7 +1,7 @@
 // --- GLOWNEST FRONTEND LOGIC ---
 
 // CONFIGURATION: Change this URL if your Render backend link changes
-const API_BASE_URL = "http://localhost:5000";
+const API_BASE_URL = "https://glownest-api-mavu.onrender.com";
 
 // 1. TikTok Comments Auto-Count & Price Logic
 document.getElementById('service-select').addEventListener('change', function() {
