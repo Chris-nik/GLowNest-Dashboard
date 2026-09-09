@@ -1,63 +1,72 @@
 // --- GLOWNEST FRONTEND LOGIC ---
 
-// CONFIGURATION: Change this URL if your Render backend link changes
+// CONFIGURATION: Base API URL on Render
 const API_BASE_URL = "https://glownest-api-mavu.onrender.com";
 
 // 1. TikTok Comments Auto-Count & Price Logic
-document.getElementById('service-select').addEventListener('change', function() {
-    const selectedServiceId = this.value;
-    const quantityInput = document.getElementById('quantity'); 
-    const commentContainer = document.getElementById('comment-container');
-    const commentTextarea = document.getElementById('custom-comments');
-    const displayPrice = document.getElementById('display-price');
-    
-    // Handle Service Note
-    const noteDisplay = document.getElementById('service-note'); 
-    // Assuming servicesData is defined elsewhere in your project
-    const selectedService = typeof servicesData !== 'undefined' ? servicesData.find(s => s.serviceId === selectedServiceId) : null;
-    
-    if (noteDisplay) {
-        if (selectedService && selectedService.description) {
-            noteDisplay.innerHTML = "<strong>ဖတ်ရန်:</strong> " + selectedService.description;
-            noteDisplay.style.display = 'block';
-        } else {
-            noteDisplay.style.display = 'none';
-        }
-    }
-
-    // TikTok Custom Comments ID: 262
-    if (selectedServiceId === "262") {
-        quantityInput.readOnly = true; 
-        if (commentContainer) commentContainer.style.display = 'block'; 
+const serviceSelectElem = document.getElementById('service-select');
+if (serviceSelectElem) {
+    serviceSelectElem.addEventListener('change', function() {
+        const selectedServiceId = this.value;
+        const quantityInput = document.getElementById('quantity'); 
+        const commentContainer = document.getElementById('comment-container');
+        const commentTextarea = document.getElementById('custom-comments');
+        const displayPrice = document.getElementById('display-price');
         
-        commentTextarea.addEventListener('input', function() {
-            const lines = this.value.split('\n').filter(line => line.trim() !== "");
-            const count = lines.length;
-            quantityInput.value = count;
+        const noteDisplay = document.getElementById('service-note'); 
+        const selectedService = typeof servicesData !== 'undefined' ? servicesData.find(s => s.serviceId === selectedServiceId) : null;
+        
+        if (noteDisplay) {
+            if (selectedService && selectedService.description) {
+                noteDisplay.innerHTML = "<strong>ဖတ်ရန်:</strong> " + selectedService.description;
+                noteDisplay.style.display = 'block';
+            } else {
+                noteDisplay.style.display = 'none';
+            }
+        }
+
+        // TikTok Custom Comments ID: 262
+        if (selectedServiceId === "262") {
+            if (quantityInput) quantityInput.readOnly = true; 
+            if (commentContainer) commentContainer.style.display = 'block'; 
             
-            const pricePerUnit = 11900 / 1000; 
-            const total = pricePerUnit * count;
-            displayPrice.innerText = Math.ceil(total) + " MMK";
-        });
-    } else {
-        quantityInput.readOnly = false;
-        if (commentContainer) commentContainer.style.display = 'none';
-        quantityInput.value = ""; 
-        displayPrice.innerText = "0 MMK";
-    }
-});
+            if (commentTextarea) {
+                commentTextarea.addEventListener('input', function() {
+                    const lines = this.value.split('\n').filter(line => line.trim() !== "");
+                    const count = lines.length;
+                    if (quantityInput) quantityInput.value = count;
+                    
+                    const pricePerUnit = 11900 / 1000; 
+                    const total = pricePerUnit * count;
+                    if (displayPrice) displayPrice.innerText = Math.ceil(total) + " MMK";
+                });
+            }
+        } else {
+            if (quantityInput) {
+                quantityInput.readOnly = false;
+                quantityInput.value = "";
+            }
+            if (commentContainer) commentContainer.style.display = 'none';
+            if (displayPrice) displayPrice.innerText = "0 MMK";
+        }
+    });
+}
 
 // 2. PLACE ORDER FUNCTION
 async function placeOrder() {
     const submitBtn = document.getElementById('place-order-btn');
     const userEmail = localStorage.getItem('userEmail'); 
     const serviceSelect = document.getElementById('service-select');
-    const serviceId = serviceSelect.value;
-    const link = document.getElementById('link-input').value;
-    const quantity = document.getElementById('quantity').value;
-    const comments = document.getElementById('custom-comments') ? document.getElementById('custom-comments').value : ""; 
+    const serviceId = serviceSelect ? serviceSelect.value : "";
+    const linkInput = document.getElementById('link-input');
+    const link = linkInput ? linkInput.value : "";
+    const quantityInput = document.getElementById('quantity');
+    const quantity = quantityInput ? quantityInput.value : "";
+    const commentsInput = document.getElementById('custom-comments');
+    const comments = commentsInput ? commentsInput.value : ""; 
     
-    const chargeText = document.getElementById('display-price').innerText;
+    const displayPriceElem = document.getElementById('display-price');
+    const chargeText = displayPriceElem ? displayPriceElem.innerText : "0";
     const charge = parseInt(chargeText.replace(/[^0-9]/g, '')) || 0;
 
     if (!userEmail) return alert("ကျေးဇူးပြု၍ အရင် Login ဝင်ပါ။");
@@ -73,13 +82,15 @@ async function placeOrder() {
     }
 
     try {
-        submitBtn.disabled = true;
-        submitBtn.innerText = "Processing...";
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerText = "Processing...";
+        }
 
         const orderData = {
             userEmail: userEmail,
             serviceId: serviceId,
-            serviceName: serviceSelect.options[serviceSelect.selectedIndex].text,
+            serviceName: serviceSelect && serviceSelect.selectedIndex >= 0 ? serviceSelect.options[serviceSelect.selectedIndex].text : "",
             link: link,
             quantity: quantity,
             charge: charge,
@@ -98,16 +109,22 @@ async function placeOrder() {
         console.error("Order Error:", err);
         alert("Server Error: Render API သို့ ချိတ်ဆက်၍မရပါ။");
     } finally {
-        submitBtn.disabled = false;
-        submitBtn.innerText = "PLACE ORDER NOW";
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerText = "PLACE ORDER NOW";
+        }
     }
 }
 
 // 3. ADMIN ADD BALANCE FUNCTION
 async function addBalance() {
-    const email = document.getElementById('admin-user-email').value;
-    const amount = document.getElementById('admin-amount').value;
-    const adminPassword = document.getElementById('admin-password').value;
+    const emailElem = document.getElementById('admin-user-email');
+    const amountElem = document.getElementById('admin-amount');
+    const passElem = document.getElementById('admin-password');
+
+    const email = emailElem ? emailElem.value : "";
+    const amount = amountElem ? amountElem.value : "";
+    const adminPassword = passElem ? passElem.value : "";
 
     if (!email || !amount || !adminPassword) {
         return alert("အချက်အလက်များ အားလုံး ဖြည့်သွင်းပါ။");
@@ -133,7 +150,10 @@ async function addBalance() {
 }
 
 // Event Listeners
-document.getElementById('place-order-btn').addEventListener('click', placeOrder);
+const placeOrderBtn = document.getElementById('place-order-btn');
+if (placeOrderBtn) {
+    placeOrderBtn.addEventListener('click', placeOrder);
+}
 
 const addBalanceBtn = document.getElementById('add-balance-btn');
 if (addBalanceBtn) {
