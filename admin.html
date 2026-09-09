@@ -215,11 +215,12 @@
 </div>
 
 <script>
- const API_BASE = "https://glownest-api-mavu.onrender.com/api";
+    const API_BASE = "https://glownest-api-mavu.onrender.com/api";
     let trendChartInstance = null;
 
     function addLog(msg, isError = false) {
         const monitor = document.getElementById('monitor');
+        if (!monitor) return;
         const entry = document.createElement('div');
         entry.className = 'log-entry';
         entry.style.borderLeftColor = isError ? '#ff4444' : '#00ff88';
@@ -227,9 +228,10 @@
         monitor.prepend(entry);
     }
 
-    // Function to render smooth neon line chart
     function updateTrendChart(labels = [], ordersData = []) {
-        const ctx = document.getElementById('ordersTrendChart').getContext('2d');
+        const canvas = document.getElementById('ordersTrendChart');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
         if (trendChartInstance) trendChartInstance.destroy();
 
         trendChartInstance = new Chart(ctx, {
@@ -239,7 +241,7 @@
                 datasets: [{
                     label: 'Total Orders Placed',
                     data: ordersData,
-                    borderColor: '#00ff88', // GlowNest Neon Green
+                    borderColor: '#00ff88',
                     backgroundColor: 'rgba(0, 255, 136, 0.07)', 
                     borderWidth: 3,
                     tension: 0.4, 
@@ -296,12 +298,11 @@
                 const ordersDataArray = [];
                 
                 const scaleTableBody = document.getElementById('salesScaleTable');
-                scaleTableBody.innerHTML = '';
+                if (scaleTableBody) scaleTableBody.innerHTML = '';
 
                 scaleData.scale.forEach(day => {
                     let orderCount = 0;
 
-                    // ADVANCED STRUCTURE UNPACKER: Handles numbers, raw objects, or objects inside arrays safely!
                     if (Array.isArray(day.totalOrders) && day.totalOrders.length > 0) {
                         const target = day.totalOrders[0];
                         orderCount = target.count || target.total || 0;
@@ -311,27 +312,23 @@
                         orderCount = parseInt(day.totalOrders) || 0;
                     }
 
-                    cumulativeRevenue += day.totalSales;
+                    cumulativeRevenue += day.totalSales || 0;
                     labels.push(day.date);
                     ordersDataArray.push(orderCount);
 
-                    scaleTableBody.innerHTML += `
-                        <tr>
-                            <td style="font-family: monospace;">${day.date}</td>
-                            <td style="font-weight: bold; color: #00ff88;">${orderCount} orders</td>
-                            <td style="color: #00bfff; font-weight: bold;">+${day.totalSales.toLocaleString()} MMK</td>
-                        </tr>
-                    `;
+                    if (scaleTableBody) {
+                        scaleTableBody.innerHTML += `
+                            <tr>
+                                <td style="font-family: monospace;">${day.date}</td>
+                                <td style="font-weight: bold; color: #00ff88;">${orderCount} orders</td>
+                                <td style="color: #00bfff; font-weight: bold;">+${(day.totalSales || 0).toLocaleString()} MMK</td>
+                            </tr>
+                        `;
+                    }
                 });
 
                 document.getElementById('totalSalesRevenue').innerText = cumulativeRevenue.toLocaleString() + " MMK";
-                
-                // Update graph lines with correct integers
                 updateTrendChart(labels, ordersDataArray);
-                
-                // Mark server as ONLINE since loops ran without crashing
-                document.getElementById('serverStatus').innerText = "ONLINE";
-                document.getElementById('serverStatus').style.color = "#00ff88";
             } else {
                 showPreviewGraph();
             }
@@ -341,9 +338,9 @@
             const historyData = await historyRes.json();
             
             const tableBody = document.getElementById('historyTable');
-            tableBody.innerHTML = '';
+            if (tableBody) tableBody.innerHTML = '';
 
-            if(historyData.history) {
+            if(historyData.history && tableBody) {
                 historyData.history.forEach(item => {
                     tableBody.innerHTML += `
                         <tr>
@@ -365,7 +362,6 @@
         }
     }
 
-    // Default template data array so your interface frame is never blank
     function showPreviewGraph() {
         const previewDates = ["May 15", "May 16", "May 17", "May 18", "May 19", "May 20"];
         const previewOrders = [5, 14, 8, 22, 13, 27]; 
@@ -406,10 +402,9 @@
         }
     }
 
-    // Initial Dashboard Launch Sequence
     showPreviewGraph(); 
     refreshData();
-    setInterval(refreshData, 30000); // Poll backend every 30 seconds
+    setInterval(refreshData, 30000);
 </script>
 
 </body>
